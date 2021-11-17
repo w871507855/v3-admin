@@ -70,6 +70,81 @@ export const asyncRoutes: Array<RouteRecordRaw> = [
       }
     ]
   },
+  {
+    path: '/serverManagement',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '服务器资源管理',
+      icon: 'server_management'
+    },
+    children: [
+      {
+        path: 'companyServer',
+        component: () => import(/* webpackChunkName: "server" */ '@/views/server_management/server/index.vue'),
+        name: 'CompanyServer',
+        meta: { title: '服务器管理', noCache: true, icon: 'server' }
+      },
+      {
+        path: 'group',
+        component: () => import(/* webpackChunkName: "server" */ '@/views/server_management/group/index.vue'),
+        name: 'Group',
+        meta: { title: '资源组管理', noCache: true, icon: 'group' }
+      }
+    ]
+  },
+  {
+    path: '/task_center',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '任务中心',
+      icon: 'taskCenter'
+    },
+    children: [
+      {
+        path: 'job_task',
+        component: () => import(/* webpackChunkName: "task" */ '@/views/task_center/job_task/index.vue'),
+        name: 'job_task',
+        meta: { title: '自定义任务', noCache: true, icon: 'job' }
+      },
+      {
+        path: 'timing_task',
+        component: () => import(/* webpackChunkName: "task" */ '@/views/task_center/timing_task/index.vue'),
+        name: 'timing_task',
+        meta: { title: '定时任务', noCache: true, icon: 'timing' }
+      },
+      {
+        path: 'code_release',
+        component: () => import(/* webpackChunkName: "task" */ '@/views/task_center/code_release/index.vue'),
+        name: 'code_release',
+        meta: { title: '代码发布', noCache: true, icon: 'code' }
+      }
+    ]
+  },
+  {
+    path: '/monitoring_center',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '监控中心',
+      icon: 'monitoring'
+    },
+    children: [
+      {
+        path: 'prometheus',
+        component: () => import(/* webpackChunkName: "monitoring" */ '@/views/monitoring_center/prometheus/index.vue'),
+        name: 'prometheus',
+        meta: { title: 'prometheus', noCache: true, icon: 'prometheus' }
+      },
+      {
+        path: 'alarm',
+        component: () => import(/* webpackChunkName: "monitoring" */ '@/views/monitoring_center/alarm/index.vue'),
+        name: 'alarm',
+        meta: { title: '报警', noCache: true, icon: 'alarm' }
+      }
+    ]
+  },
   { // 必须将 'Error' 路由放在最后 Must put the 'Error' route at the end
     path: '/:pathMatch(.*)*',
     component: Layout,

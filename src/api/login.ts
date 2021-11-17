@@ -1,3 +1,11 @@
+/*
+ * @Description: 登录api
+ * @Author: lichengcheng
+ * @mail: 871507855@qq.com
+ * @Date: 2021-11-08 10:06:42
+ * @LastEditTime: 2021-11-08 11:00:10
+ * @LastEditors: lichengcheng
+ */
 import { request } from '@/utils/service'
 
 interface IUserRequestData {
@@ -8,7 +16,7 @@ interface IUserRequestData {
 // 登录以后返回 token
 export function accountLogin(data: IUserRequestData) {
   return request({
-    url: 'users/login',
+    url: 'login/access-token',
     method: 'post',
     data
   })
@@ -16,7 +24,7 @@ export function accountLogin(data: IUserRequestData) {
 // 获取用户详情
 export function userInfoRequest() {
   return request({
-    url: 'users/info',
-    method: 'post'
+    url: 'user/info',
+    method: 'get'
   })
 }

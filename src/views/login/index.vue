@@ -46,7 +46,7 @@
               <svg-icon :name="passwordType === 'password' ? 'eye' : 'eye-open'" />
             </span>
           </el-form-item>
-          <el-form-item prop="code">
+          <!-- <el-form-item prop="code">
             <span class="svg-container">
               <svg-icon name="table" />
             </span>
@@ -62,7 +62,7 @@
             <span class="show-code">
               <img :src="src" alt="验证码" @click="createCode">
             </span>
-          </el-form-item>
+          </el-form-item> -->
           <el-button :loading="loading" type="primary" @click.prevent="handleLogin">
             登录
           </el-button>
@@ -80,8 +80,8 @@ import { useRouter } from 'vue-router'
 interface ILoginForm {
   username: string
   password: string
-  code: string
-  checkCode: string
+  // code: string
+  // checkCode: string
 }
 
 interface ILoginRules {
@@ -96,12 +96,10 @@ const router = useRouter()
 const IloginFormDom = ref<any>()
 const passwordDom = ref<any>()
 // data
-const src = ref<string>('')
+// const src = ref<string>('')
 const IloginForm = reactive<ILoginForm>({
-  username: 'admin', // admin 或 editor
-  password: '123456',
-  code: '1234',
-  checkCode: ''
+  username: 'admin@admin.com', // admin 或 editor
+  password: 'admin'
 })
 const IloginRules = reactive<ILoginRules>({
   username: [
@@ -109,7 +107,7 @@ const IloginRules = reactive<ILoginRules>({
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: 'blur' }
+    { min: 2, max: 18, message: '长度在 2 到 18 个字符', trigger: 'blur' }
   ],
   code: [
     { required: true, message: '请输入验证码', trigger: 'blur' }
@@ -139,28 +137,28 @@ const handleLogin: () => void | boolean = () => {
         })
       }).catch(() => {
         loading.value = false
-        createCode()
+        // createCode()
       })
     } else {
       return false
     }
   })
 }
-// 创建验证码
-const createCode: () => void = () => {
-  // 先清空验证码的输入
-  let code = ''
-  IloginForm.code = ''
-  const codeLength = 12
-  // 随机数
-  const random: Array<number | string> = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-  for (let i = 0; i < codeLength; i++) {
-    const index = Math.floor(Math.random() * 36)
-    code += random[index]
-  }
-  IloginForm.checkCode = code
-  src.value = `/api/v1/login/authcode?token=${code}` // 实际开放中，可替换成自己的地址，模板只是提供一个参考
-}
+// // 创建验证码
+// const createCode: () => void = () => {
+//   // 先清空验证码的输入
+//   let code = ''
+//   IloginForm.code = ''
+//   const codeLength = 12
+//   // 随机数
+//   const random: Array<number | string> = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+//   for (let i = 0; i < codeLength; i++) {
+//     const index = Math.floor(Math.random() * 36)
+//     code += random[index]
+//   }
+//   IloginForm.checkCode = code
+//   src.value = `/api/v1/login/authcode?token=${code}` // 实际开放中，可替换成自己的地址，模板只是提供一个参考
+// }
 // createCode()
 </script>
 

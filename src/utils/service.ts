@@ -60,10 +60,12 @@ function createService() {
         switch (code) {
           case 0:
             return apiData // code === 0 代表没有错误
+          case 200:
+            return apiData // code === 0 代表没有错误
           case 20000:
             return apiData // code === 20000 代表没有错误
           default:
-            ElMessage.error(apiData.msg || 'Error') // 不是正确的 code
+            ElMessage.error(apiData.message || 'Error') // 不是正确的 code
             return Promise.reject(new Error('Error'))
         }
       }
@@ -113,7 +115,8 @@ function createRequestFunction() {
     const configDefault = {
       headers: {
         // Authorization: 'Bearer ' + getToken(),
-        'X-Access-Token': getToken(), // mock 接口专用，开发时可自行修改
+        // 'X-Access-Token': getToken(), // mock 接口专用，开发时可自行修改
+        token: getToken(), // mock 接口专用，开发时可自行修改
         'Content-Type': get(config, 'headers.Content-Type', 'application/json')
       },
       timeout: 5000,

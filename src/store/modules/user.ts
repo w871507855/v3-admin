@@ -1,3 +1,11 @@
+/*
+ * @Description: 登录权限管理
+ * @Author: lichengcheng
+ * @mail: 871507855@qq.com
+ * @Date: 2021-11-08 10:06:42
+ * @LastEditTime: 2021-11-08 11:38:37
+ * @LastEditors: lichengcheng
+ */
 import { getToken, removeToken, setToken } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { accountLogin, userInfoRequest } from '@/api/login'
@@ -34,31 +42,58 @@ const mutations = {
 
 const actions = {
   // 登录
-  login({ commit }: any, userInfo: { username: string, password: string }) {
+  async login({ commit }: any, userInfo: { username: string, password: string }) {
     let { username, password } = userInfo
     username = username.trim()
-    return new Promise((resolve, reject) => {
-      accountLogin({ username, password }).then((res: any) => {
+    await accountLogin({ username, password }).then(async(res: any) => {
+      if (res.code === 200 && res.data.accessToken) {
+        console.log('token内容', res.data.accessToken)
         setToken(res.data.accessToken)
         commit('SET_TOKEN', res.data.accessToken)
-        resolve(true)
-      }).catch(error => {
-        reject(error)
-      })
+      }
+    }).catch((err) => {
+      console.log(err)
     })
+    // return new Promise((resolve, reject) => {
+    //   console.log('开始登录', { username, password })
+    //   accountLogin({ username, password }).then((res: any) => {
+    //     if (res.code === 200 && res.data.accessToken) {
+    //       console.log('获取的token', res.data)
+    //       setToken(res.data.accessToken)
+    //       commit('SET_TOKEN', res.data.accessToken)
+    //       resolve(true)
+    //     }
+    //   }).catch(error => {
+    //     reject(error)
+    //   })
+    // })
   },
   // 获取用户详情
-  getInfo({ commit }: any) {
-    return new Promise((resolve, reject) => {
-      userInfoRequest().then((res: any) => {
-        commit('SET_NAME', res.data.user.name)
-        commit('SET_AVATAR', res.data.user.avatar)
-        commit('SET_ROLES', res.data.user.roles)
-        resolve(res)
-      }).catch(error => {
-        reject(error)
-      })
+  async getInfo({ commit }: any) {
+    await userInfoRequest().then((res: any) => {
+      console.log('获取用户信息1', res)
+      if (res.code === 200) {
+        console.log('获取用户信息2', res)
+        commit('SET_EMAIL', res.data.email)
+        commit('SET_AVATAR', res.data.avatar)
+        commit('SET_ROLES', [res.data.authority.authority_name])
+        return res
+      } else {
+        throw Error('Verification failed, please Login again.')
+      }
     })
+    // return new Promise((resolve, reject) => {
+    //   userInfoRequest().then((res: any) => {
+    //     console.log(res.data)
+    //     commit('SET_NAME', res.data.user.name)
+    //     commit('SET_AVATAR', res.data.avatar)
+    //     commit('SET_ROLES', [res.data.authority.authority_name])
+    //     resolve(res)
+    //   }).catch(error => {
+    //     console.log('报错了')
+    //     reject(error)
+    //   })
+    // })
   },
   // 切换角色
   async changeRoles({ commit, state, dispatch, rootState }: any, role: string) {

@@ -90,7 +90,6 @@
 <script lang="ts" setup>
 import { reactive } from 'vue'
 import { checkPermission } from '@/utils/permission' // 权限判断函数
-import SwitchRoles from './components/switch-roles.vue'
 
 const state = reactive({
   key: 1,

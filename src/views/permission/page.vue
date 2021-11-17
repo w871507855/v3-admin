@@ -1,3 +1,11 @@
+<!--
+ * @Description: 权限测试
+ * @Author: lichengcheng
+ * @mail: 871507855@qq.com
+ * @Date: 2021-11-08 10:06:42
+ * @LastEditTime: 2021-11-08 14:55:53
+ * @LastEditors: lichengcheng
+-->
 <!-- 权限测试（页面权限、指令权限、角色权限）Demo，勿删 -->
 
 <template>
@@ -8,7 +16,6 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import SwitchRoles from './components/switch-roles.vue'
 
 const router = useRouter()
 const handleRolesChange = () => {
