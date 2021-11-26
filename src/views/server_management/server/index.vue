@@ -1,11 +1,9 @@
-/* eslint-disable camelcase */
-/* eslint-disable vue/camelcase */
 <!--
  * @Description: 服务器信息页面
  * @Author: lichengcheng
  * @mail: 871507855@qq.com
  * @Date: 2021-11-08 13:51:46
- * @LastEditTime: 2021-11-17 16:58:35
+ * @LastEditTime: 2021-11-26 14:33:20
  * @LastEditors: lichengcheng
 -->
 <template>
@@ -21,6 +19,10 @@
       style="width: 100%"
     >
       <el-table-column
+        label="服务器名称"
+        prop="hostname"
+      />
+      <el-table-column
         label="ip地址"
         prop="server_ip"
       />
@@ -31,6 +33,10 @@
       <el-table-column
         label="登录端口"
         prop="server_port"
+      />
+      <el-table-column
+        label="所属分组"
+        prop="group.description"
       />
       <el-table-column align="right">
         <template #header>
@@ -55,12 +61,12 @@
           >
             获取硬件信息
           </el-button>
-          <el-button
+          <!-- <el-button
             size="mini"
             @click="serverToGroup(scope.$index, scope.row)"
           >
             添加分组
-          </el-button>
+          </el-button> -->
           <el-button
             size="mini"
             type="primary"
@@ -96,6 +102,12 @@
       title="服务器管理"
     >
       <el-form>
+        <el-form-item label="服务器名称">
+          <el-input
+            v-model="serverCreate.hostname"
+            placeholder="请输入服务器名称"
+          />
+        </el-form-item>
         <el-form-item label="服务器地址">
           <el-input
             v-model="serverCreate.ip"
@@ -127,8 +139,8 @@
           >
             确认
           </el-button>
-          <el-button type="danger">
-            删除
+          <el-button type="danger" @click="clearServerCreate">
+            重置
           </el-button>
         </el-form-item>
       </el-form>
@@ -144,6 +156,12 @@
             v-model="serverUpdate.id"
             disabled
             placeholder="id"
+          />
+        </el-form-item>
+        <el-form-item label="服务器名称">
+          <el-input
+            v-model="serverUpdate.hostname"
+            placeholder="请输入服务器名称"
           />
         </el-form-item>
         <el-form-item label="服务器地址">
@@ -170,6 +188,19 @@
             placeholder="请输入端口"
           />
         </el-form-item>
+        <el-form-item label="选择服务器所属资源组">
+          <el-select v-model="serverUpdate.group_id" placeholder="选择资源组">
+            <el-pagination
+              v-model:currentPage="groupSearch.page"
+              :page-size="groupSearch.pageSize"
+              layout="total, prev, pager, next"
+              :total="groupSearch.total"
+              @size-change="handleGroupSizeChange"
+              @current-change="handleGroupCurrentChange"
+            />
+            <el-option v-for="item in groupList" :key="item.id" :label="item.group" :value="item.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button
             type="primary"
@@ -177,8 +208,8 @@
           >
             确认
           </el-button>
-          <el-button type="danger">
-            删除
+          <el-button type="danger" @click="clearServerUpdate">
+            重置
           </el-button>
         </el-form-item>
       </el-form>
@@ -226,35 +257,12 @@
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
-    <el-dialog
-      v-model="dialogServerGroup"
-      title="服务器添加分组"
-    >
-      <el-select v-model="serverGroup.group_id" placeholder="选择资源组">
-        <el-pagination
-          v-model:currentPage="groupSearch.page"
-          :page-size="groupSearch.pageSize"
-          layout="total, prev, pager, next"
-          :total="groupSearch.total"
-          @size-change="handleGroupSizeChange"
-          @current-change="handleGroupCurrentChange"
-        />
-        <el-option v-for="item in groupList" :key="item.id" :label="item.group" :value="item.id" />
-      </el-select>
-      <br>
-      <el-button style="margin-top: 100px" type="primary" @click="updateServerGroup">
-        确认
-      </el-button>
-      <el-button>
-        取消
-      </el-button>
-    </el-dialog>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive, toRefs } from 'vue'
-import { getAllServer, createServer, updateServer, getServer, deleteServer, getServerInfo, serverAddGroup } from '@/api/server_management/server'
+import { getAllServer, createServer, updateServer, getServer, deleteServer, getServerInfo } from '@/api/server_management/server'
 import { getAllGroup } from '@/api/server_management/group'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -262,17 +270,21 @@ export default defineComponent({
   setup() {
     const state = reactive({
       serverCreate: {
+        hostname: '',
         ip: '',
         user: '',
         passwd: '',
-        port: 22
+        port: 22,
+        group_id: 1
       },
       serverUpdate: {
         id: 0,
+        hostname: '',
         ip: '',
         user: '',
         passwd: '',
-        port: 0
+        port: 22,
+        group_id: 1
       },
       serverSearch: {
         page: 1,
@@ -294,7 +306,6 @@ export default defineComponent({
       dialogUpdateServer: false,
       dialogServerInfo: false,
       serverInfo: {},
-      dialogServerGroup: false,
       passwd_base64: '',
       routeData: ''
     })
@@ -326,9 +337,18 @@ export default defineComponent({
           }
         })
       },
+      clearServerCreate: () => {
+        state.serverCreate.hostname = ''
+        state.serverCreate.ip = ''
+        state.serverCreate.user = ''
+        state.serverCreate.passwd = ''
+        state.serverCreate.port = 22
+        state.serverCreate.group_id = 1
+      },
       handleEdit: (index: any, row: any) => {
         state.dialogUpdateServer = true
         methods.get(row.id)
+        methods.groupAll()
       },
       // 更新服务器
       update: () => {
@@ -348,14 +368,20 @@ export default defineComponent({
           }
         })
       },
+      clearServerUpdate: () => {
+        methods.get(state.serverUpdate.id)
+      },
       // 根据id查询服务器
       get: (id: number) => {
         getServer(id).then((res: any) => {
           if (res?.code === 200) {
             state.serverUpdate.id = res?.data.id
+            state.serverUpdate.hostname = res?.data.hostname
             state.serverUpdate.ip = res?.data.server_ip
             state.serverUpdate.user = res?.data.server_user
             state.serverUpdate.passwd = res?.data.server_passwd
+            state.serverUpdate.port = res?.data.server_port
+            state.serverUpdate.group_id = res?.data.group_id
           } else {
             ElMessage({
               message: res?.message,
@@ -428,12 +454,6 @@ export default defineComponent({
           }
         })
       },
-      // 服务器添加分组
-      serverToGroup: (index: any, row: any) => {
-        state.dialogServerGroup = true
-        state.serverGroup.server_id = row.id
-        methods.groupAll()
-      },
       // 资源组切换分页
       handleGroupSizeChange: (val: any) => {
         state.groupSearch.pageSize = val
@@ -444,28 +464,10 @@ export default defineComponent({
         state.groupSearch.page = val
         methods.groupAll()
       },
-      // 服务器添加资源组
-      updateServerGroup: () => {
-        console.log('sdsf', state.serverGroup)
-        serverAddGroup(state.serverGroup).then((res: any) => {
-          if (res.code === 200) {
-            ElMessage({
-              message: res.message,
-              type: 'success'
-            })
-            state.dialogServerGroup = false
-          } else {
-            ElMessage({
-              message: res.message,
-              type: 'warning'
-            })
-          }
-        })
-      },
       // 服务器远程ssh
       handlerServerSSH: (index: any, row: any) => {
         state.passwd_base64 = window.btoa(row.server_passwd)
-        const url = `http://172.21.5.200:8888/?hostname=${row.server_ip}&username=${row.server_user}&password=${state.passwd_base64}`
+        const url = `http://172.21.5.200:8888/?hostname=${row.server_ip}&username=${row.server_user}&password=${state.passwd_base64}&port=${row.server_port}`
         window.open(url, '_blank')
       }
     })

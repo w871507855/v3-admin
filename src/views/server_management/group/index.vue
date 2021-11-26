@@ -3,7 +3,7 @@
  * @Author: lichengcheng
  * @mail: 871507855@qq.com
  * @Date: 2021-11-08 13:52:00
- * @LastEditTime: 2021-11-09 18:07:51
+ * @LastEditTime: 2021-11-26 14:47:34
  * @LastEditors: lichengcheng
 -->
 <template>
@@ -37,16 +37,17 @@
         <template #default="scope">
           <el-button
             size="mini"
+            type="primary"
             @click="handleEdit(scope.$index, scope.row)"
           >
-            Edit
+            修改
           </el-button>
           <el-button
             size="mini"
             type="danger"
             @click="handleDelete(scope.$index, scope.row)"
           >
-            Delete
+            删除
           </el-button>
         </template>
       </el-table-column>
@@ -88,8 +89,8 @@
           >
             确认
           </el-button>
-          <el-button type="danger">
-            删除
+          <el-button type="danger" @click="clearGroupCreate">
+            重置
           </el-button>
         </el-form-item>
       </el-form>
@@ -119,8 +120,8 @@
           >
             确认
           </el-button>
-          <el-button type="danger">
-            删除
+          <el-button type="danger" @click="clearGroupUpdate">
+            重置
           </el-button>
         </el-form-item>
       </el-form>
@@ -130,7 +131,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, onMounted } from 'vue'
-import { getAllGroup, createGroup, updateGroup, deleteGroup } from '@/api/server_management/group'
+import { getAllGroup, createGroup, updateGroup, deleteGroup, getGroup } from '@/api/server_management/group'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 export default defineComponent({
@@ -165,7 +166,6 @@ export default defineComponent({
       // 创建资源组
       create: () => {
         createGroup(state.groupCreate).then((res: any) => {
-          console.log(res)
           if (res?.code === 200) {
             ElMessage({
               message: '资源分组创建成功',
@@ -176,11 +176,16 @@ export default defineComponent({
           }
         })
       },
+      clearGroupCreate: () => {
+        state.groupCreate.group = ''
+        state.groupCreate.description = ''
+      },
       // 更新资源组弹窗
       handleEdit: (index: any, row: any) => {
-        state.groupUpdate.id = row.id
-        state.groupUpdate.group = row.group
-        state.groupUpdate.description = row.description
+        // state.groupUpdate.id = row.id
+        // state.groupUpdate.group = row.group
+        // state.groupUpdate.description = row.description
+        methods.get(row.id)
         state.dialogUpdateGroup = true
       },
       // 更新资源组信息
@@ -193,6 +198,19 @@ export default defineComponent({
             })
             methods.getAll()
             state.dialogUpdateGroup = false
+          }
+        })
+      },
+      clearGroupUpdate: () => {
+        methods.get(state.groupUpdate.id)
+      },
+      // 根据id查询资源组信息
+      get: (id: number) => {
+        getGroup(id).then((res: any) => {
+          if (res?.code === 200) {
+            state.groupUpdate.id = res?.data.id
+            state.groupUpdate.group = res?.data.group
+            state.groupUpdate.description = res?.data.description
           }
         })
       },

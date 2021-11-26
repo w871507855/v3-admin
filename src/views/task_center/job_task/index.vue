@@ -3,7 +3,7 @@
  * @Author: lichengcheng
  * @mail: 871507855@qq.com
  * @Date: 2021-11-09 13:45:56
- * @LastEditTime: 2021-11-10 11:42:55
+ * @LastEditTime: 2021-11-25 15:01:32
  * @LastEditors: lichengcheng
 -->
 <template>
@@ -57,7 +57,7 @@
               <el-option
                 v-for="item in serverList"
                 :key="item.id"
-                :label="item.server_ip"
+                :label="item.hostname"
                 :value="item.id"
               />
             </el-select>
@@ -94,7 +94,7 @@
               <el-option
                 v-for="item in serverList"
                 :key="item.id"
-                :label="item.server_ip"
+                :label="item.hostname"
                 :value="item.id"
               />
             </el-select>
@@ -128,12 +128,14 @@ export default defineComponent({
       serverId: 0,
       jobInfoShell: {
         server: '',
-        script: ''
+        script: '',
+        group: ''
       },
       jobInfoScript: {
         chdir: '',
         script_dir: '',
-        server: ''
+        server: '',
+        group: ''
       },
       severSearch: {
         page: 1,
@@ -164,8 +166,10 @@ export default defineComponent({
       getServerInfo: () => {
         getServer(state.serverId).then((res: any) => {
           if (res?.code === 200) {
-            state.jobInfoShell.server = res?.data.server_ip
-            state.jobInfoScript.server = res?.data.server_ip
+            state.jobInfoShell.server = res?.data.hostname
+            state.jobInfoShell.group = res?.data.group.group
+            state.jobInfoScript.server = res?.data.hostname
+            state.jobInfoScript.group = res?.data.group.group
           }
         })
       },

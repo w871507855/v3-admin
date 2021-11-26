@@ -3,7 +3,7 @@
  * @Author: lichengcheng
  * @mail: 871507855@qq.com
  * @Date: 2021-11-09 13:46:11
- * @LastEditTime: 2021-11-11 18:37:01
+ * @LastEditTime: 2021-11-25 15:00:25
  * @LastEditors: lichengcheng
 -->
 <template>
@@ -21,7 +21,7 @@
         <el-option
           v-for="item in serverList"
           :key="item.id"
-          :label="item.server_ip"
+          :label="item.hostname"
           :value="item.id"
         />
       </el-select>
@@ -134,6 +134,7 @@ export default defineComponent({
     const state = reactive({
       serverId: 0,
       server: '',
+      group: '',
       severSearch: {
         page: 1,
         pageSize: 5,
@@ -149,7 +150,8 @@ export default defineComponent({
         month: '*',
         weekday: '*',
         job: '',
-        server: ''
+        server: '',
+        group: ''
       },
       taskUpdate: {
         name: '',
@@ -159,10 +161,12 @@ export default defineComponent({
         month: '*',
         weekday: '*',
         job: '',
-        server: ''
+        server: '',
+        group: ''
       },
       taskDelete: {
         server: '',
+        group: '',
         name: ''
       },
       dialogAdd: false,
@@ -192,17 +196,21 @@ export default defineComponent({
       getServerInfo: () => {
         getServer(state.serverId).then((res: any) => {
           if (res?.code === 200) {
-            state.server = res?.data.server_ip
-            state.taskGreat.server = res?.data.server_ip
-            state.taskUpdate.server = res?.data.server_ip
-            state.taskDelete.server = res?.data.server_ip
+            state.server = res?.data.hostname
+            state.group = res?.data.group.group
+            state.taskGreat.server = res?.data.hostname
+            state.taskGreat.group = res?.data.group.group
+            state.taskUpdate.server = res?.data.hostname
+            state.taskUpdate.group = res?.data.group.group
+            state.taskDelete.server = res?.data.hostname
+            state.taskDelete.group = res?.data.group.group
             methods.getAllTiming()
           }
         })
       },
       getAllTiming: () => {
         console.log('sd', state.server)
-        getAllTimingApi({ server: state.server }).then((res: any) => {
+        getAllTimingApi({ server: state.server, group: state.group }).then((res: any) => {
           if (res?.code === 200) {
             state.taskList = res?.data
           }

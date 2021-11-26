@@ -2,8 +2,8 @@
   <div class="login-container">
     <div class="login-card">
       <div class="title">
-        <!-- <h3>V3 - Admin</h3> -->
-        <img src="@/assets/layout/logo-text.png">
+        <h3>迦智运维平台</h3>
+        <!-- <img src="@/assets/layout/jiazhi-text.png"> -->
       </div>
       <div class="content">
         <el-form
